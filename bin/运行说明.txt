@@ -1,0 +1,3 @@
+下载jre环境，配置好路径，然后cmd打开命令窗口
+输入命令： java -jar ThemeCrwaler.jar
+即可运行
