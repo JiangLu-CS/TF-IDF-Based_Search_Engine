@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 public class searchSystem {
+    // article nums
     public static int N = 102;
 
     public static void main(String[] args) {
@@ -14,6 +15,9 @@ public class searchSystem {
         System.out.println("输入关键词");
         Scanner sc = new Scanner(System.in);
         query = sc.next();
+        
+        
+        // build tf-idf index
         Experiment2 exp2 = new Experiment2();
         LinkedList<Item> dictionary = exp2.indexing();
         Df(dictionary);
@@ -22,20 +26,23 @@ public class searchSystem {
 
 
         Map<Integer,BigDecimal> map = new LinkedHashMap<>();
-
-        for (int i = 0; i < 102; i++) {
+        for (int i = 0; i < N; i++) {
             if(getTFIDF(i, query) != null){
                 map.put(i,getTFIDF(i, query));
             }
         }
+        
         List<Map.Entry<Integer, BigDecimal>> list = new ArrayList<>();
         list.addAll(map.entrySet());
         Collections.sort(list, (o1, o2) -> o2.getValue().compareTo(o1.getValue()));
+        
         Map<Integer, BigDecimal> result = new LinkedHashMap<>();
         for(Map.Entry<Integer, BigDecimal> entry : list){
             result.put(entry.getKey(), entry.getValue());
         }
+        
         System.out.println("关键词：" + query);
+        
         for(int i : result.keySet()){
             Article article = Experiment1.article_map.get(i);
             System.out.print(i + ":");
@@ -54,7 +61,7 @@ public class searchSystem {
             for (Item item : dictionary) {
                 System.out.println("idf:" + item.term + " " + String.valueOf(Math.log(N / item.docs) / Math.log(10)));
                 if(Math.log(N / item.docs) / Math.log(10) == 0){
-                    jedis.set("idf:" + item.term, "1.0791812460476247");
+                    jedis.set("idf:" + item.term, "1");
                     continue;
                 }
                 jedis.set("idf:" + item.term, String.valueOf(Math.log(N / item.docs) / Math.log(10)));
@@ -99,6 +106,7 @@ public class searchSystem {
         BigDecimal tfidf = idf.multiply(tf);
         return tfidf;
     }
+    
     public static void Tf(LinkedList<Item> dictionary) {
         Jedis jedis = new Jedis("localhost");
         long startTime = System.currentTimeMillis();
